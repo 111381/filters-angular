@@ -1,0 +1,154 @@
+<!-- Main container with conditional classes for modal backdrop -->
+<div [class]="mode() === 'modal' ? 'fixed inset-0 bg-slate-900/50 flex items-center justify-center p-4 z-50' : ''">
+  
+  <!-- Dialog Panel with conditional classes -->
+  <div 
+    class="bg-white rounded-xl flex flex-col w-full overflow-hidden resize-y h-[500px] min-h-[400px]"
+    [class.shadow-2xl]="mode() === 'modal'"
+    [class.max-w-3xl]="mode() === 'modal'"
+    [class.shadow-lg]="mode() === 'inline'"
+    [class.border]="mode() === 'inline'"
+    [class.border-slate-200]="mode() === 'inline'"
+  >
+    <!-- Dialog Header -->
+    <header 
+      class="flex items-center justify-between p-5 border-b border-slate-200 bg-white z-10"
+      [class.sticky]="mode() === 'modal'"
+      [class.top-0]="mode() === 'modal'"
+      [class.rounded-t-xl]="mode() === 'inline'"
+    >
+      <h2 class="text-xl font-bold text-slate-800">Create New Filter</h2>
+      <button (click)="onClose()" class="text-slate-400 hover:text-slate-600 transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </header>
+
+    <!-- Dialog Body (Scrollable) -->
+    <div 
+      class="flex-1 p-5 overflow-y-auto"
+    >
+      <div class="mb-6">
+        <label for="filterName" class="block text-sm font-medium text-slate-700 mb-1">Filter Name</label>
+        <input 
+          type="text" 
+          id="filterName"
+          [value]="filterName()"
+          (input)="updateFilterName($event)"
+          class="block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-sky-500 focus:border-sky-500 sm:text-sm"
+          placeholder="e.g., High Value Transactions"
+        >
+      </div>
+
+      <div class="space-y-4">
+        @for (criterion of criteria(); track criterion.id) {
+          <div class="flex items-start space-x-2 p-3 bg-slate-50 rounded-lg border border-slate-200">
+            <!-- Criterion Type Dropdown -->
+            <select 
+              [value]="criterion.filterType"
+              (change)="updateCriterionType(criterion.id, $event)"
+              class="w-1/4 px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-sky-500 focus:border-sky-500 text-sm">
+              @for (type of criterionTypes; track type) {
+                <option [value]="type">{{ type }}</option>
+              }
+            </select>
+            
+            <!-- Condition Dropdown -->
+            <select 
+              [value]="criterion.conditionType"
+              (change)="updateCriterionField(criterion.id, 'conditionType', $event)"
+              class="w-1/4 px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-sky-500 focus:border-sky-500 text-sm">
+              @for (condition of conditionsMap[criterion.filterType]; track condition.value) {
+                <option [value]="condition.value">{{ condition.label }}</option>
+              }
+            </select>
+
+            <!-- Value Input (Dynamic) -->
+            <div class="flex-grow">
+              @switch (criterion.filterType) {
+                @case ('Amount') {
+                  <input 
+                    type="number" 
+                    [value]="criterion.value"
+                    (input)="updateCriterionField(criterion.id, 'value', $event)"
+                    class="block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-sky-500 focus:border-sky-500 text-sm"
+                    placeholder="Enter amount"
+                  >
+                }
+                @case ('Title') {
+                  <input 
+                    type="text" 
+                    [value]="criterion.value"
+                    (input)="updateCriterionField(criterion.id, 'value', $event)"
+                    class="block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-sky-500 focus:border-sky-500 text-sm"
+                    placeholder="Enter text"
+                  >
+                }
+                @case ('Date') {
+                   <input 
+                    type="date" 
+                    [value]="criterion.value"
+                    (input)="updateCriterionField(criterion.id, 'value', $event)"
+                    class="block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-sky-500 focus:border-sky-500 text-sm"
+                  >
+                }
+              }
+            </div>
+
+            <!-- Action Buttons -->
+            <div>
+              <button
+                (click)="removeCriterion(criterion.id)"
+                [disabled]="criteria().length <= constants.MIN_CRITERIA_COUNT"
+                class="flex items-center justify-center px-3 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors"
+                title="Remove criterion"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M5 10a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1z" clip-rule="evenodd" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="mt-4">
+        <button (click)="addCriterion()" class="w-full flex items-center justify-center px-4 py-2 border border-dashed border-slate-300 rounded-md text-sm font-medium text-slate-600 hover:bg-slate-100 hover:border-slate-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+          </svg>
+          Add Criterion
+        </button>
+      </div>
+
+      <div class="mt-4">
+          Selection:
+          <label>
+              <input type="radio" name="selection" value="s1" checked (change)="selectedSelection = 's1'"> Select 1
+          </label>
+          <label>
+              <input type="radio" name="selection" value="s2" (change)="selectedSelection = 's2'"> Select 2
+          </label>
+          <label>
+              <input type="radio" name="selection" value="s3" (change)="selectedSelection = 's3'"> Select 3
+          </label>
+      </div>
+    </div>
+    
+    <!-- Dialog Footer -->
+    <footer 
+      class="flex items-center justify-end p-5 border-t border-slate-200 bg-white z-10"
+      [class.sticky]="mode() === 'modal'"
+      [class.bottom-0]="mode() === 'modal'"
+      [class.rounded-b-xl]="mode() === 'inline'"
+    >
+      <button (click)="onClose()" class="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md shadow-sm hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500">
+        Cancel
+      </button>
+      <button (click)="onSave()" class="ml-3 px-4 py-2 text-sm font-medium text-white bg-sky-600 border border-transparent rounded-md shadow-sm hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500">
+        Save Filter
+      </button>
+    </footer>
+  </div>
+</div>

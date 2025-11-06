@@ -1,0 +1,5 @@
+{
+  "name": "Advanced Filter Creator",
+  "description": "An application to create, manage, and view custom data filters. Users can build complex filters by combining multiple criteria based on amount, title, and date.",
+  "requestFramePermissions": []
+}

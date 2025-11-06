@@ -1,0 +1,87 @@
+import {ChangeDetectionStrategy, Component, OnInit, signal} from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FilterDialogComponent } from './components/filter-dialog/filter-dialog.component';
+import { Filter } from './models/filter.model';
+import { FilterRestService } from "@/src/services/filter-rest-service";
+import { finalize } from "rxjs";
+import { NotificationService } from "@/src/services/notification.service";
+
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [CommonModule, FilterDialogComponent],
+})
+export class AppComponent implements OnInit {
+  readonly filters = signal<Filter[]>([]);
+  readonly isDialogVisible = signal(false);
+  readonly dialogMode = signal<'modal' | 'inline'>('modal');
+  readonly isLoading = signal(false);
+  private nextFilterId = signal(1);
+
+  constructor(
+    private filterRestService: FilterRestService,
+    private notificationService: NotificationService) {
+  }
+
+  ngOnInit(): void {
+    this.loadFilters();
+  }
+
+  loadFilters(): void {
+    this.isLoading.set(true);
+    this.filterRestService.getAllFilters()
+      .pipe(finalize(() => this.isLoading.set(false)))
+      .subscribe({
+        next: (filters) => this.filters.set(filters),
+        error: (error) => this.notificationService.error(error.message)
+      });
+  }
+
+  setDialogMode(mode: 'modal' | 'inline'): void {
+    this.dialogMode.set(mode);
+  }
+
+  addFilter(): void {
+    this.isDialogVisible.set(true);
+  }
+
+  saveFilter(newFilterData: Omit<Filter, 'id'>): void {
+    const newFilter: Filter = {
+      ...newFilterData,
+      id: this.nextFilterId(),
+    };
+    this.filters.update(currentFilters => [...currentFilters, newFilter]);
+    this.nextFilterId.update(id => id + 1);
+    this.filterRestService.saveFilter(newFilter).subscribe();
+    this.isDialogVisible.set(false);
+  }
+
+  closeDialog(): void {
+    this.isDialogVisible.set(false);
+  }
+
+  getConditionLabel(type: string, conditionValue: string): string {
+    switch (type) {
+      case 'Amount':
+        if (conditionValue === 'greater_than') return '>';
+        if (conditionValue === 'less_than') return '<';
+        if (conditionValue === 'equals') return '=';
+        if (conditionValue === 'not_equals') return '!=';
+        break;
+      case 'Title':
+        if (conditionValue === 'contains') return 'contains';
+        if (conditionValue === 'not_contains') return 'does not contain';
+        if (conditionValue === 'equals') return 'is';
+        if (conditionValue === 'not_equals') return 'is not';
+        break;
+      case 'Date':
+        if (conditionValue === 'is') return 'on';
+        if (conditionValue === 'is_not') return 'not on';
+        if (conditionValue === 'is_after') return 'after';
+        if (conditionValue === 'is_before') return 'before';
+        break;
+    }
+    return conditionValue;
+  }
+}
