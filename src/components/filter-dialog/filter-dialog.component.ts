@@ -14,7 +14,7 @@ export class FilterDialogComponent implements OnInit {
   save = output<Omit<Filter, 'id'>>();
   close = output<void>();
   mode = input<'modal' | 'inline'>('modal');
-  readonly selectionValues: string[] = ['s1', 's2', 's3'];
+  readonly selectionValues: string[] = ['S1', 'S2', 'S3'];
   selectedSelection: string = this.selectionValues[0];
 
   readonly filterName = signal(constants.DEFAULT_FILTER_NAME);

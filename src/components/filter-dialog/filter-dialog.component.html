@@ -125,13 +125,13 @@
       <div class="mt-4">
           Selection:
           <label>
-              <input type="radio" name="selection" value="s1" checked (change)="selectedSelection = 's1'"> Select 1
+              <input type="radio" name="selection" checked (change)="selectedSelection = selectionValues[0]"> Select 1
           </label>
           <label>
-              <input type="radio" name="selection" value="s2" (change)="selectedSelection = 's2'"> Select 2
+              <input type="radio" name="selection" (change)="selectedSelection = selectionValues[1]"> Select 2
           </label>
           <label>
-              <input type="radio" name="selection" value="s3" (change)="selectedSelection = 's3'"> Select 3
+              <input type="radio" name="selection" (change)="selectedSelection = selectionValues[2]"> Select 3
           </label>
       </div>
     </div>
