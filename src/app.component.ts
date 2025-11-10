@@ -51,10 +51,22 @@ export class AppComponent implements OnInit {
       ...newFilterData,
       id: this.nextFilterId(),
     };
-    this.filters.update(currentFilters => [...currentFilters, newFilter]);
-    this.nextFilterId.update(id => id + 1);
-    this.filterRestService.saveFilter(newFilter).subscribe();
-    this.isDialogVisible.set(false);
+    this.isLoading.set(true);
+    this.filterRestService.saveFilter(newFilter)
+      .pipe(finalize(() => this.isLoading.set(false)))
+      .subscribe({
+        next: () => {
+          this.filters.update(currentFilters => [...currentFilters, newFilter]);
+          this.nextFilterId.update(id => id + 1);
+          this.isDialogVisible.set(false);
+          this.isLoading.set(false);
+          this.notificationService.success('Filter saved successfully');
+        },
+        error: (error) => {
+          this.isLoading.set(false);
+          this.notificationService.error('Failed to save filter: ' + error.message);
+        }
+      });
   }
 
   closeDialog(): void {

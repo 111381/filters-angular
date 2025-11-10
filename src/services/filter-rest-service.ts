@@ -15,7 +15,7 @@ export class FilterRestService {
   }
 
   getAllFilters(): Observable<Filter[]> {
-    return this.http.get<Filter[]>(this.apiUrl + this.filterServicePath).pipe(
+    return this.http.get<Filter[]>(this.apiUrl + '/' + this.filterServicePath).pipe(
       catchError(error => {
         console.error('Failed to fetch filters:', error);
         return throwError(() => new Error('Failed to load filters. Please try again.'));
@@ -24,7 +24,7 @@ export class FilterRestService {
   }
 
   saveFilter(filter: Filter): Observable<Filter> {
-    return this.http.post<Filter>(this.apiUrl + this.filterServicePath, filter).pipe(
+    return this.http.post<Filter>(this.apiUrl + '/' + this.filterServicePath, filter).pipe(
       catchError(error => {
         console.error('Failed to save filter:', error);
         return throwError(() => new Error('Failed to save filter. Please try again.'));

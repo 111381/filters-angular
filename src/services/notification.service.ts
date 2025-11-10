@@ -24,4 +24,8 @@ export class NotificationService {
   error(message: string) {
     this.showNotification(message, 'Error');
   }
+
+  success(message: string) {
+    this.showNotification(message, 'Success');
+  }
 }
