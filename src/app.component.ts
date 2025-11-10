@@ -5,6 +5,7 @@ import { Filter } from './models/filter.model';
 import { FilterRestService } from "@/src/services/filter-rest-service";
 import { finalize } from "rxjs";
 import { NotificationService } from "@/src/services/notification.service";
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-root',
@@ -13,6 +14,7 @@ import { NotificationService } from "@/src/services/notification.service";
   imports: [CommonModule, FilterDialogComponent],
 })
 export class AppComponent implements OnInit {
+  private readonly destroyRef = takeUntilDestroyed();
   readonly filters = signal<Filter[]>([]);
   readonly isDialogVisible = signal(false);
   readonly dialogMode = signal<'modal' | 'inline'>('modal');
@@ -31,11 +33,18 @@ export class AppComponent implements OnInit {
   loadFilters(): void {
     this.isLoading.set(true);
     this.filterRestService.getAllFilters()
-      .pipe(finalize(() => this.isLoading.set(false)))
+      .pipe(
+        finalize(() => this.isLoading.set(false)),
+        this.destroyRef
+      )
       .subscribe({
-        next: (filters) => this.filters.set(filters),
+        next: (filters: Filter[]) => this.handleFiltersLoaded(filters),
         error: (error) => this.notificationService.error(error.message)
       });
+  }
+
+  private handleFiltersLoaded(filters: Filter[]): void {
+    this.filters.set(filters);
   }
 
   setDialogMode(mode: 'modal' | 'inline'): void {
