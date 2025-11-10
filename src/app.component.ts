@@ -21,7 +21,6 @@ export class AppComponent implements OnInit {
   readonly isDialogVisible = signal(false);
   readonly dialogMode = signal<DialogMode>('modal');
   readonly isLoading = signal(false);
-  private nextFilterId = signal(1);
 
   ngOnInit(): void {
     this.loadFilters();
@@ -55,15 +54,14 @@ export class AppComponent implements OnInit {
   saveFilter(newFilterData: Omit<Filter, 'id'>): void {
     const newFilter: Filter = {
       ...newFilterData,
-      id: this.nextFilterId(),
+      id: null,
     };
     this.isLoading.set(true);
     this.filterRestService.saveFilter(newFilter)
       .pipe(finalize(() => this.isLoading.set(false)))
       .subscribe({
-        next: () => {
-          this.filters.update(currentFilters => [...currentFilters, newFilter]);
-          this.nextFilterId.update(id => id + 1);
+        next: (savedFilter) => {
+          this.filters.update(currentFilters => [...currentFilters, savedFilter]);
           this.isDialogVisible.set(false);
           this.isLoading.set(false);
           this.notificationService.success('Filter saved successfully');
