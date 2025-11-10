@@ -46,7 +46,7 @@ Update the API endpoint in these files as needed:
 export const environment = {
   production: false,
   apiUrl: 'http://localhost:8080',
-  filerServicePath: '/api/filters'
+  filterServicePath: '/api/filters'
 };
 ```
 ### 4. Run Development Server
