@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, OnInit, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, OnInit, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CONDITIONS_MAP, Criterion, CriterionType, Filter } from '../../models/filter.model';
 import { NotificationService } from '../../services/notification.service';
@@ -17,13 +17,12 @@ export class FilterDialogComponent implements OnInit {
   readonly selectionValues: string[] = ['S1', 'S2', 'S3'];
   selectedSelection: string = this.selectionValues[0];
 
+  private readonly notificationService = inject(NotificationService);
   readonly filterName = signal(constants.DEFAULT_FILTER_NAME);
   readonly criteria = signal<Criterion[]>([]);
   readonly conditionsMap = CONDITIONS_MAP;
   readonly criterionTypes: CriterionType[] = ['Amount', 'Title', 'Date'];
   private nextCriterionId = 1;
-
-  constructor(private notificationService: NotificationService) {}
 
   ngOnInit(): void {
     this.addCriterion();
