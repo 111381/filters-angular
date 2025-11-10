@@ -1,7 +1,7 @@
 import {ChangeDetectionStrategy, Component, OnInit, signal} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FilterDialogComponent } from './components/filter-dialog/filter-dialog.component';
-import { Filter } from './models/filter.model';
+import { CONDITIONS_MAP, CriterionType, Filter } from './models/filter.model';
 import { FilterRestService } from "@/src/services/filter-rest-service";
 import { finalize } from "rxjs";
 import { NotificationService } from "@/src/services/notification.service";
@@ -83,26 +83,8 @@ export class AppComponent implements OnInit {
   }
 
   getConditionLabel(type: string, conditionValue: string): string {
-    switch (type) {
-      case 'Amount':
-        if (conditionValue === 'greater_than') return '>';
-        if (conditionValue === 'less_than') return '<';
-        if (conditionValue === 'equals') return '=';
-        if (conditionValue === 'not_equals') return '!=';
-        break;
-      case 'Title':
-        if (conditionValue === 'contains') return 'contains';
-        if (conditionValue === 'not_contains') return 'does not contain';
-        if (conditionValue === 'equals') return 'is';
-        if (conditionValue === 'not_equals') return 'is not';
-        break;
-      case 'Date':
-        if (conditionValue === 'is') return 'on';
-        if (conditionValue === 'is_not') return 'not on';
-        if (conditionValue === 'is_after') return 'after';
-        if (conditionValue === 'is_before') return 'before';
-        break;
-    }
-    return conditionValue;
+    const condition = CONDITIONS_MAP[type as CriterionType]
+      ?.find(c => c.value === conditionValue);
+    return condition?.label ?? conditionValue;
   }
 }
