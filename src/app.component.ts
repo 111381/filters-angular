@@ -1,7 +1,7 @@
 import {ChangeDetectionStrategy, Component, OnInit, signal} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FilterDialogComponent } from './components/filter-dialog/filter-dialog.component';
-import { CONDITIONS_MAP, CriterionType, Filter } from './models/filter.model';
+import { CONDITIONS_MAP, CriterionType, DialogMode, Filter } from './models/filter.model';
 import { FilterRestService } from "@/src/services/filter-rest-service";
 import { finalize } from "rxjs";
 import { NotificationService } from "@/src/services/notification.service";
@@ -17,7 +17,7 @@ export class AppComponent implements OnInit {
   private readonly destroyRef = takeUntilDestroyed();
   readonly filters = signal<Filter[]>([]);
   readonly isDialogVisible = signal(false);
-  readonly dialogMode = signal<'modal' | 'inline'>('modal');
+  readonly dialogMode = signal<DialogMode>('modal');
   readonly isLoading = signal(false);
   private nextFilterId = signal(1);
 
@@ -47,7 +47,7 @@ export class AppComponent implements OnInit {
     this.filters.set(filters);
   }
 
-  setDialogMode(mode: 'modal' | 'inline'): void {
+  setDialogMode(mode: DialogMode): void {
     this.dialogMode.set(mode);
   }
 

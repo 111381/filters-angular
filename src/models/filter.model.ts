@@ -1,5 +1,7 @@
 export type CriterionType = 'Amount' | 'Title' | 'Date';
 
+export type DialogMode = 'modal' | 'inline';
+
 export type AmountCondition = 'greater_than' | 'less_than' | 'equals' | 'not_equals';
 export type TitleCondition = 'contains' | 'not_contains' | 'equals' | 'not_equals';
 export type DateCondition = 'is' | 'is_not' | 'is_after' | 'is_before';
