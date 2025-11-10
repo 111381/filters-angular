@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, OnInit, signal} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FilterDialogComponent } from './components/filter-dialog/filter-dialog.component';
 import { CONDITIONS_MAP, CriterionType, DialogMode, Filter } from './models/filter.model';
@@ -14,17 +14,14 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   imports: [CommonModule, FilterDialogComponent],
 })
 export class AppComponent implements OnInit {
+  private readonly filterRestService = inject(FilterRestService);
+  private readonly notificationService = inject(NotificationService);
   private readonly destroyRef = takeUntilDestroyed();
   readonly filters = signal<Filter[]>([]);
   readonly isDialogVisible = signal(false);
   readonly dialogMode = signal<DialogMode>('modal');
   readonly isLoading = signal(false);
   private nextFilterId = signal(1);
-
-  constructor(
-    private filterRestService: FilterRestService,
-    private notificationService: NotificationService) {
-  }
 
   ngOnInit(): void {
     this.loadFilters();
